@@ -19,7 +19,7 @@ export default function RegisterPage() {
 
   const onSubmit = ({ fullName, email, password }) =>
     registerMutation.mutate({ fullName, email, password }, {
-      onSuccess: () => navigate('/login', { replace: true }),
+      onSuccess: () => navigate('/verify-email', { replace: true, state: { email } }),
     })
 
   return (

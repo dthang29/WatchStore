@@ -20,6 +20,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
+import com.pet_project.watchstore.common.constants.MovementType;
+
 @Entity
 @Table(name = "products")
 @Getter
@@ -54,14 +56,60 @@ public class Product {
     @Column(nullable = false)
     private int stock;
 
+    @Column(name = "is_active", nullable = false)
+    private boolean active = true;
+
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "last_restocked_at", nullable = false)
+    private LocalDateTime lastRestockedAt;
+
     @PrePersist
     void onCreate() {
         createdAt = LocalDateTime.now(ZoneOffset.UTC);
+        if (lastRestockedAt == null) lastRestockedAt = createdAt;
+    }
+
+    public static Product create(Category category, String name, String brand, String description,
+                                 MovementType movementType, BigDecimal price, int stock, String imageUrl) {
+        Product product = new Product();
+        product.update(category, name, brand, description, movementType, price, stock, imageUrl);
+        return product;
+    }
+
+    public void update(Category category, String name, String brand, String description,
+                       MovementType movementType, BigDecimal price, int stock, String imageUrl) {
+        this.category = category;
+        this.name = name.trim();
+        this.brand = brand.trim();
+        this.description = blankToNull(description);
+        this.movementType = movementType;
+        this.price = price;
+        if (stock > this.stock) lastRestockedAt = LocalDateTime.now(ZoneOffset.UTC);
+        this.stock = stock;
+        this.imageUrl = blankToNull(imageUrl);
+    }
+
+    public void activate() {
+        active = true;
+    }
+
+    public void deactivate() {
+        active = false;
+    }
+
+    public void reserveStock(int quantity) {
+        if (quantity <= 0 || quantity > stock) {
+            throw new IllegalArgumentException("Số lượng sản phẩm không hợp lệ");
+        }
+        stock -= quantity;
+    }
+
+    private static String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 }

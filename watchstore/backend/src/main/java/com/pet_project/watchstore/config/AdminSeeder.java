@@ -1,6 +1,6 @@
 package com.pet_project.watchstore.config;
 
-import com.pet_project.watchstore.entity.Role;
+import com.pet_project.watchstore.common.constants.Role;
 import com.pet_project.watchstore.entity.User;
 import com.pet_project.watchstore.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

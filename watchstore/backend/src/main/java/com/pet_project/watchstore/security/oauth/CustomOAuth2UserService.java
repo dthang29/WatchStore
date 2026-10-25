@@ -1,7 +1,8 @@
-package com.pet_project.watchstore.security;
+package com.pet_project.watchstore.security.oauth;
 
 import com.pet_project.watchstore.entity.User;
 import com.pet_project.watchstore.repository.UserRepository;
+import com.pet_project.watchstore.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -34,8 +35,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         Map<String, Object> attributes = oauth2User.getAttributes();
         String email = User.normalizeEmail((String) attributes.get("email"));
-        // Chỉ tin email đã được Google xác minh, tránh chiếm tài khoản qua email giả
-        if (email == null || !Boolean.TRUE.equals(attributes.get("email_verified"))) {
+        // Google UserInfo (scope profile,email) dùng "verified_email". Claim OIDC
+        // dùng "email_verified", nên chấp nhận cả hai để không từ chối người dùng hợp lệ.
+        // Chỉ tin email đã được Google xác minh, tránh chiếm tài khoản qua email giả.
+        if (email == null || !isEmailVerified(attributes)) {
             throw error("email_not_verified", "Email Google chưa được xác minh");
         }
 
@@ -54,6 +57,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (user.getGoogleId() == null) user.setGoogleId(googleId);
         if (user.getAvatarUrl() == null) user.setAvatarUrl(picture);
         return user;
+    }
+
+    private boolean isEmailVerified(Map<String, Object> attributes) {
+        Object verified = attributes.get("email_verified");
+        if (verified == null) verified = attributes.get("verified_email");
+        return Boolean.TRUE.equals(verified) || "true".equalsIgnoreCase(String.valueOf(verified));
     }
 
     private OAuth2AuthenticationException error(String code, String message) {

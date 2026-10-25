@@ -1,4 +1,4 @@
-package com.pet_project.watchstore.security;
+package com.pet_project.watchstore.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

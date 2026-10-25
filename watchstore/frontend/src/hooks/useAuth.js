@@ -12,6 +12,22 @@ export function useRegister() {
   return useMutation({ mutationFn: authApi.register })
 }
 
+export function useVerifyRegistration() {
+  return useMutation({ mutationFn: authApi.verifyRegistration })
+}
+
+export function useResendRegistrationCode() {
+  return useMutation({ mutationFn: authApi.resendRegistrationCode })
+}
+
+export function useForgotPassword() {
+  return useMutation({ mutationFn: authApi.forgotPassword })
+}
+
+export function useResetPassword() {
+  return useMutation({ mutationFn: authApi.resetPassword })
+}
+
 export function useLogout() {
   const clearAuth = useAuthStore((state) => state.clearAuth)
   const queryClient = useQueryClient()
@@ -28,4 +44,12 @@ export function useLogout() {
 export function useMe() {
   const isAuthenticated = useAuthStore(selectIsAuthenticated)
   return useQuery({ queryKey: ['me'], queryFn: userApi.getMe, enabled: isAuthenticated })
+}
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: userApi.updateMe,
+    onSuccess: (user) => queryClient.setQueryData(['me'], user),
+  })
 }

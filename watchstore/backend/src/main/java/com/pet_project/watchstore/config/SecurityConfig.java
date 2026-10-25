@@ -1,10 +1,10 @@
 package com.pet_project.watchstore.config;
 
-import com.pet_project.watchstore.security.CustomOAuth2UserService;
-import com.pet_project.watchstore.security.JwtAuthFilter;
-import com.pet_project.watchstore.security.JwtService;
-import com.pet_project.watchstore.security.OAuth2FailureHandler;
-import com.pet_project.watchstore.security.OAuth2SuccessHandler;
+import com.pet_project.watchstore.security.jwt.JwtAuthFilter;
+import com.pet_project.watchstore.security.jwt.JwtService;
+import com.pet_project.watchstore.security.oauth.CustomOAuth2UserService;
+import com.pet_project.watchstore.security.oauth.OAuth2FailureHandler;
+import com.pet_project.watchstore.security.oauth.OAuth2SuccessHandler;
 import com.pet_project.watchstore.security.RestAccessDeniedHandler;
 import com.pet_project.watchstore.security.RestAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
@@ -61,6 +61,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/vnpay/ipn", "/api/vnpay/return").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/brands/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

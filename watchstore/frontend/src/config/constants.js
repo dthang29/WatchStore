@@ -19,4 +19,4 @@ export const ORDER_STATUS = {
   CANCELLED: 'Đã huỷ',
 }
 
-export const PAGE_SIZE = 12
+export const PAGE_SIZE = 30

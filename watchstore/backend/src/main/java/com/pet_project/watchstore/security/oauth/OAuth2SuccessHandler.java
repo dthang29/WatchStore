@@ -1,8 +1,9 @@
-package com.pet_project.watchstore.security;
+package com.pet_project.watchstore.security.oauth;
 
 import com.pet_project.watchstore.auth.RefreshTokenCookie;
 import com.pet_project.watchstore.auth.RefreshTokenService;
 import com.pet_project.watchstore.config.AppSecurityProperties;
+import com.pet_project.watchstore.security.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;

@@ -30,6 +30,11 @@ services:
   backend:
     build: ./backend
     restart: unless-stopped
+    # Chứa các cấu hình chỉ dành cho Spring Boot (Google OAuth2, DB khi chạy IDE).
+    # Không khai báo GOOGLE_* ở environment bên dưới để giá trị trong file này không
+    # bị biến rỗng trong .env ở thư mục gốc ghi đè.
+    env_file:
+      - ./backend/.env
     depends_on:
       mysql:
         condition: service_healthy
@@ -42,8 +47,6 @@ services:
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
     ports:
       # Trình duyệt cần truy cập trực tiếp :8080 cho đăng nhập Google
       - "8080:8080"

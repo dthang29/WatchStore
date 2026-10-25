@@ -1,10 +1,19 @@
 import { Link } from 'react-router'
 import Spinner from '../../components/ui/Spinner'
 import ProductGrid from '../../components/product/ProductGrid'
-import { useProducts } from '../../hooks/useProducts'
+import { useNewArrivals, useProducts } from '../../hooks/useProducts'
 
 export default function HomePage() {
-  const { data, isLoading } = useProducts({ page: 0, size: 8, sort: 'createdAt,desc' })
+  const { data: newArrivals, isLoading: isLoadingNewArrivals } = useNewArrivals({
+    page: 0,
+    size: 8,
+    sort: 'lastRestockedAt,desc',
+  })
+  const { data: products, isLoading: isLoadingProducts } = useProducts({
+    page: 0,
+    size: 8,
+    sort: 'createdAt,desc',
+  })
 
   return (
     <div className="space-y-12">
@@ -22,8 +31,19 @@ export default function HomePage() {
       </section>
 
       <section>
-        <h2 className="mb-4 text-2xl font-semibold">Sản phẩm mới</h2>
-        {isLoading ? <Spinner /> : <ProductGrid products={data?.content} />}
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <h2 className="text-2xl font-semibold">Hàng mới về</h2>
+          <Link to="/new-arrivals" className="text-sm font-medium text-brand-600 hover:underline">Tất cả</Link>
+        </div>
+        {isLoadingNewArrivals ? <Spinner /> : <ProductGrid products={newArrivals?.content} />}
+      </section>
+
+      <section>
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <h2 className="text-2xl font-semibold">Tất cả sản phẩm</h2>
+          <Link to="/products" className="text-sm font-medium text-brand-600 hover:underline">Tất cả</Link>
+        </div>
+        {isLoadingProducts ? <Spinner /> : <ProductGrid products={products?.content} />}
       </section>
     </div>
   )

@@ -5,8 +5,11 @@ import MainLayout from '../layouts/MainLayout'
 import OrdersPage from '../pages/account/OrdersPage'
 import ProfilePage from '../pages/account/ProfilePage'
 import LoginPage from '../pages/auth/LoginPage'
+import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage'
 import OAuth2CallbackPage from '../pages/auth/OAuth2CallbackPage'
 import RegisterPage from '../pages/auth/RegisterPage'
+import ResetPasswordPage from '../pages/auth/ResetPasswordPage'
+import VerifyEmailPage from '../pages/auth/VerifyEmailPage'
 import CartPage from '../pages/cart/CartPage'
 import CheckoutPage from '../pages/checkout/CheckoutPage'
 import ForbiddenPage from '../pages/errors/ForbiddenPage'
@@ -14,6 +17,7 @@ import NotFoundPage from '../pages/errors/NotFoundPage'
 import HomePage from '../pages/home/HomePage'
 import ProductDetailPage from '../pages/products/ProductDetailPage'
 import ProductListPage from '../pages/products/ProductListPage'
+import NewArrivalsPage from '../pages/products/NewArrivalsPage'
 import GuestRoute from './GuestRoute'
 import ProtectedRoute from './ProtectedRoute'
 
@@ -27,6 +31,7 @@ export const router = createBrowserRouter([
       // Public
       { index: true, element: <HomePage /> },
       { path: 'products', element: <ProductListPage /> },
+      { path: 'new-arrivals', element: <NewArrivalsPage /> },
       { path: 'products/:id', element: <ProductDetailPage /> },
       { path: 'cart', element: <CartPage /> },
       { path: 'oauth2/callback', element: <OAuth2CallbackPage /> },
@@ -37,7 +42,10 @@ export const router = createBrowserRouter([
         element: <GuestRoute />,
         children: [
           { path: 'login', element: <LoginPage /> },
+          { path: 'forgot-password', element: <ForgotPasswordPage /> },
+          { path: 'reset-password', element: <ResetPasswordPage /> },
           { path: 'register', element: <RegisterPage /> },
+          { path: 'verify-email', element: <VerifyEmailPage /> },
         ],
       },
 

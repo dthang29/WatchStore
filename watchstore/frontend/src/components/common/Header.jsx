@@ -24,9 +24,6 @@ export default function Header() {
         </Link>
 
         <nav className="flex items-center gap-6">
-          <NavLink to="/products" className={navClass}>
-            Sản phẩm
-          </NavLink>
           <NavLink to="/cart" className={navClass}>
             Giỏ hàng ({cartCount})
           </NavLink>

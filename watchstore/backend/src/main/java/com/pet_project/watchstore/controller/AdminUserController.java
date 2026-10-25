@@ -3,7 +3,6 @@ package com.pet_project.watchstore.controller;
 import com.pet_project.watchstore.dto.PageResponse;
 import com.pet_project.watchstore.dto.UserResponse;
 import com.pet_project.watchstore.service.UserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -16,10 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/admin/users")
 @PreAuthorize("hasRole('ADMIN')")
-@RequiredArgsConstructor
 public class AdminUserController {
 
     private final UserService userService;
+
+    public AdminUserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
     public PageResponse<UserResponse> findAll(

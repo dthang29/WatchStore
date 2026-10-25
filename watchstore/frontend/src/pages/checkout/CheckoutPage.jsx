@@ -1,10 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Navigate, useNavigate } from 'react-router'
 import PageTitle from '../../components/common/PageTitle'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
+import { useCartStock } from '../../hooks/useCartStock'
 import { useCreateOrder } from '../../hooks/useOrders'
+import { orderApi } from '../../api/orderApi'
 import { checkoutSchema } from '../../schemas/checkoutSchema'
 import { selectCartTotal, useCartStore } from '../../store/cartStore'
 import { getErrorMessage } from '../../utils/error'
@@ -16,6 +19,16 @@ export default function CheckoutPage() {
   const clearCart = useCartStore((state) => state.clear)
   const createOrder = useCreateOrder()
   const navigate = useNavigate()
+  const [stockValidationError, setStockValidationError] = useState('')
+  const {
+    getStock,
+    hasStockCheckError,
+    isCheckingStock,
+    refreshAndValidate,
+    unavailableItems,
+  } = useCartStock(items)
+  const checkoutBlocked =
+    isCheckingStock || hasStockCheckError || unavailableItems.length > 0
 
   const {
     register,
@@ -28,15 +41,32 @@ export default function CheckoutPage() {
 
   if (!items.length && !createOrder.isSuccess) return <Navigate to="/cart" replace />
 
-  const onSubmit = (values) => {
+  const onSubmit = async (values) => {
+    setStockValidationError('')
+    const stockValidation = await refreshAndValidate()
+    if (!stockValidation.valid) {
+      setStockValidationError(stockValidation.reason)
+      return
+    }
+
     // Chỉ gửi id + số lượng; giá phải do backend tính lại, không tin giá từ client
     const payload = {
       ...values,
       items: items.map(({ id, quantity }) => ({ productId: id, quantity })),
     }
     createOrder.mutate(payload, {
-      onSuccess: () => {
+      onSuccess: async (order) => {
         clearCart()
+        if (values.paymentMethod === 'VNPAY') {
+          try {
+            const { paymentUrl } = await orderApi.createVnPayPayment(order.id)
+            window.location.assign(paymentUrl)
+            return
+          } catch {
+            navigate('/account/orders?payment=start-failed', { replace: true })
+            return
+          }
+        }
         navigate('/account/orders', { replace: true })
       },
     })
@@ -61,24 +91,45 @@ export default function CheckoutPage() {
             <input type="radio" value="BANK_TRANSFER" {...register('paymentMethod')} /> Chuyển
             khoản
           </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="radio" value="VNPAY" {...register('paymentMethod')} /> VNPay
+          </label>
         </fieldset>
 
         {createOrder.isError && (
           <p className="text-sm text-red-600">{getErrorMessage(createOrder.error)}</p>
         )}
-        <Button type="submit" loading={createOrder.isPending} className="w-full">
-          Đặt hàng
+        {(stockValidationError || hasStockCheckError || unavailableItems.length > 0) && (
+          <p className="text-sm text-red-600">
+            {stockValidationError ||
+              (hasStockCheckError
+                ? 'Không thể kiểm tra tồn kho. Vui lòng thử lại.'
+                : 'Giỏ hàng có sản phẩm đã hết hoặc không đủ số lượng.')}
+          </p>
+        )}
+        <Button
+          type="submit"
+          loading={createOrder.isPending || isCheckingStock}
+          disabled={checkoutBlocked}
+          className="w-full"
+        >
+          {checkoutBlocked && !isCheckingStock ? 'Chưa thể đặt hàng' : 'Đặt hàng'}
         </Button>
       </form>
 
       <aside className="h-fit rounded-lg bg-white p-6">
         <h2 className="mb-4 font-semibold">Đơn hàng ({items.length} sản phẩm)</h2>
         {items.map((item) => (
-          <div key={item.id} className="flex justify-between py-1 text-sm">
-            <span>
-              {item.name} × {item.quantity}
-            </span>
-            <span>{formatPrice(item.price * item.quantity)}</span>
+          <div key={item.id} className="py-1 text-sm">
+            <div className="flex justify-between">
+              <span>
+                {item.name} × {item.quantity}
+              </span>
+              <span>{formatPrice(item.price * item.quantity)}</span>
+            </div>
+            {!isCheckingStock && getStock(item) <= 0 && (
+              <p className="text-red-600">Hết hàng - không thể thanh toán</p>
+            )}
           </div>
         ))}
         <div className="mt-4 flex justify-between border-t pt-4 font-bold">

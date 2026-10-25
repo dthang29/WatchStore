@@ -28,6 +28,18 @@ export default function LoginPage() {
     <div className="mx-auto max-w-md rounded-lg bg-white p-8 shadow-sm">
       <h1 className="mb-6 text-center text-2xl font-semibold">Đăng nhập</h1>
 
+      {location.state?.emailVerified && (
+        <p role="status" className="mb-4 rounded bg-green-50 p-3 text-sm text-green-700">
+          Email đã được xác thực. Bạn có thể đăng nhập.
+        </p>
+      )}
+
+      {location.state?.passwordReset && (
+        <p role="status" className="mb-4 rounded bg-green-50 p-3 text-sm text-green-700">
+          Mật khẩu đã được đặt lại. Bạn có thể đăng nhập.
+        </p>
+      )}
+
       {searchParams.get('error') && (
         <p className="mb-4 rounded bg-red-50 p-3 text-sm text-red-600">
           Đăng nhập bằng mạng xã hội thất bại, vui lòng thử lại.
@@ -52,6 +64,10 @@ export default function LoginPage() {
           Đăng nhập
         </Button>
       </form>
+
+      <p className="mt-3 text-right text-sm">
+        <Link to="/forgot-password" className="text-brand-600 hover:underline">Quên mật khẩu?</Link>
+      </p>
 
       <div className="my-6 text-center text-xs uppercase text-gray-400">hoặc</div>
       <a

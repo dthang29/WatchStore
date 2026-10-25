@@ -1,4 +1,4 @@
-package com.pet_project.watchstore.security;
+package com.pet_project.watchstore.security.oauth;
 
 import com.pet_project.watchstore.config.AppSecurityProperties;
 import jakarta.servlet.http.HttpServletRequest;

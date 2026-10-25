@@ -11,6 +11,9 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Locale;
 
+import com.pet_project.watchstore.common.constants.Role;
+import com.pet_project.watchstore.common.constants.AuthProvider;
+
 @Entity
 @Table(name = "users")
 @Getter

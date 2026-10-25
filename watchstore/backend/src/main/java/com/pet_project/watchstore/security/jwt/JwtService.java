@@ -1,7 +1,8 @@
-package com.pet_project.watchstore.security;
+package com.pet_project.watchstore.security.jwt;
 
 import com.pet_project.watchstore.config.AppSecurityProperties;
 import com.pet_project.watchstore.entity.User;
+import com.pet_project.watchstore.security.AuthUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

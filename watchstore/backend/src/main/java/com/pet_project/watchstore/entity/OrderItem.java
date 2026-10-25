@@ -39,4 +39,13 @@ public class OrderItem {
     /** Giá sản phẩm tại thời điểm đặt hàng. */
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
+
+    public static OrderItem create(Order order, Product product, int quantity) {
+        OrderItem item = new OrderItem();
+        item.order = order;
+        item.product = product;
+        item.quantity = quantity;
+        item.price = product.getPrice();
+        return item;
+    }
 }

@@ -13,12 +13,14 @@ export const useCartStore = create(
           if (existing) {
             return {
               items: state.items.map((item) =>
-                item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item,
+                item.id === product.id
+                  ? { ...item, quantity: item.quantity + quantity, stock: product.stock }
+                  : item,
               ),
             }
           }
-          const { id, name, price, imageUrl } = product
-          return { items: [...state.items, { id, name, price, imageUrl, quantity }] }
+          const { id, name, price, imageUrl, stock } = product
+          return { items: [...state.items, { id, name, price, imageUrl, stock, quantity }] }
         }),
 
       updateQuantity: (id, quantity) =>
