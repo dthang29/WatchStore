@@ -24,7 +24,7 @@ public class EmailService {
 
     public EmailService(ObjectProvider<JavaMailSender> mailSender,
                         @Value("${spring.mail.host:}") String host,
-                        @Value("${spring.mail.username:}") String from,
+                        @Value("${spring.mail.from:}") String from,
                         @Value("${spring.mail.password:}") String password,
                         @Value("${app.security.frontend-url:http://localhost:5173}") String frontendUrl) {
         this.mailSender = mailSender;

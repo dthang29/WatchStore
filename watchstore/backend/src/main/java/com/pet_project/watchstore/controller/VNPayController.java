@@ -1,60 +1,50 @@
 package com.pet_project.watchstore.controller;
 
-import com.pet_project.watchstore.config.AppSecurityProperties;
-import com.pet_project.watchstore.security.AuthUser;
 import com.pet_project.watchstore.service.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
-import java.util.Map;
-
 @RestController
-@RequestMapping("/api/vnpay")
 public class VNPayController {
-
     private final VNPayService vnPayService;
-    private final AppSecurityProperties securityProperties;
 
-    public VNPayController(VNPayService vnPayService, AppSecurityProperties securityProperties) {
+    public VNPayController(VNPayService vnPayService) {
         this.vnPayService = vnPayService;
-        this.securityProperties = securityProperties;
     }
 
-    @PostMapping("/orders/{orderId}/payment-url")
-    public PaymentUrlResponse paymentUrl(@PathVariable Integer orderId,
-                                         @AuthenticationPrincipal AuthUser me,
-                                         HttpServletRequest request) {
-        return new PaymentUrlResponse(vnPayService.createPaymentUrl(orderId, me.id(), request.getRemoteAddr()));
+
+    @GetMapping("")
+    public String home(){
+        return "index";
     }
 
-    @GetMapping("/ipn")
-    public VNPayService.IpnResponse ipn(@RequestParam Map<String, String> params) {
-        try {
-            return vnPayService.handleIpn(params);
-        } catch (RuntimeException ex) {
-            return new VNPayService.IpnResponse("99", "System error");
-        }
+    @PostMapping("/submitOrder")
+    public String submidOrder(@RequestParam("amount") int orderTotal,
+                            @RequestParam("orderInfo") String orderInfo,
+                            HttpServletRequest request){
+        String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+        String vnpayUrl = vnPayService.createOrder(orderTotal, orderInfo, baseUrl);
+        return "redirect:" + vnpayUrl;
     }
 
-    @GetMapping("/return")
-    public ResponseEntity<Void> paymentReturn(@RequestParam Map<String, String> params) {
-        String status = vnPayService.returnStatus(params);
-        String frontend = securityProperties.frontendUrl().replaceAll("/+$", "");
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .header(HttpHeaders.LOCATION, URI.create(frontend + "/account/orders?payment=" + status).toString())
-                .build();
-    }
+    @GetMapping("/vnpay-payment")
+    public String GetMapping(HttpServletRequest request, Model model){
+        int paymentStatus =vnPayService.orderReturn(request);
 
-    public record PaymentUrlResponse(String paymentUrl) {
+        String orderInfo = request.getParameter("vnp_OrderInfo");
+        String paymentTime = request.getParameter("vnp_PayDate");
+        String transactionId = request.getParameter("vnp_TransactionNo");
+        String totalPrice = request.getParameter("vnp_Amount");
+
+        model.addAttribute("orderId", orderInfo);
+        model.addAttribute("totalPrice", totalPrice);
+        model.addAttribute("paymentTime", paymentTime);
+        model.addAttribute("transactionId", transactionId);
+
+        return paymentStatus == 1 ? "ordersuccess" : "orderfail";
     }
 }
